@@ -1,0 +1,460 @@
+<!-- Walking the Dog
+Author: Alice Wang
+Summer 2013
+
+Functions
+-Game has 3-4 options: Eat, play, poop, bark
+-the dog can walk left and right
+-if you click on certain things, you can interact with it. walk up to it and click
+
+or
+
+the background is automatically scrolling
+dog has 4 choices as it comes across things in its path.
+
+To Do:
+-Three frame animation of dog running
+-dog automatically run across the screen
+-static background
+-eat button summons some food, dog stands next to it and the food dissapears
+-play makes the dog jump up and dogs, chase a ball
+-poop makes a poop appear next to the dog (dissapears in about 8 seconds)
+-bark makes the letters BRK BRK BRK appear from his mouth and move across the screen
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <title>Walking the Dog</title>
+    <!-- <link rel="shortcut icon" href="favicon.ico"> -->
+ 	
+    <style type="text/css">
+		#instructions {
+			position: absolute;
+			top: 25px;
+			text-align: center;
+            font-family: monospace;
+            font-size: medium;
+            color: black;
+		}
+        pre {
+            font-family: monospace;
+            font-size: small;
+            color: black;
+        }
+        #buttons {
+        	margin-top: 315px;
+            margin-left: 200px;
+         	position: absolute;
+         	z-index: -1;
+        }
+        .butt {
+			font-family: monospace;
+        }
+        img {
+             /*background-image: url('../Art/background2.gif');
+             background-size: 200% 200%;
+             background-repeat: no-repeat; */
+             z-index: -2;
+             position:absolute;
+             left:0px;
+             top:0px;
+             display: inline;
+        }
+        div.dog {
+             display: none;
+             position: absolute;
+             z-index: 1;
+         	 margin-top: 225px;
+        }
+       /*#dogRight3 {
+        	display: inline;
+         	top: 300px;
+        } */
+        .bg {
+             display: block;
+             position: absolute;
+             z-index: 1;
+         	 margin-top: 235px;
+        }
+        .objects {
+        	 display: none;
+             position: absolute;
+             z-index: 1;
+        }
+        #bone {
+        	 display:none;
+         	 margin-top: 270px;
+             margin-left: 100px;
+        }
+        #bowl {
+             display: none;
+        	 margin-top: 250px;
+             margin-left: 100px;
+        }
+     	#ball {
+        	 display: none;
+        	 margin-top: 230px;
+             margin-left: 85px;
+        }
+		#ball:hover {
+			cursor:pointer;
+		}
+        #poo {
+        	 display: none;
+        	 margin-top: 252px;
+             margin-left: 500px;
+        }
+		#poo:hover {
+			cursor:pointer;
+		}
+     	#bark {
+             display: none;
+        	 top: 245px;
+        }
+		#dogSitLeft, #dogSitRight {
+			display: none;
+			margin-top: 210px;
+		}
+    </style>
+ 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script type="text/javascript">
+	        
+    var width=800; // Max position of dog, width of bg img
+    var position=100; // Position in pixels of dog on screen
+    var barkPosition=position;
+    var frame=1; // Which frame the animation is on
+    var direction=0; // Right=0, Left=1 
+    var step=50; // Distance dog moves with one step
+    var oldFrameName="dogRight1"; //Name of previous frame, so we don't have to find it again
+    var frameName="dogRight1";
+    var change=false; // Did dog change direction?
+	var walkTiming;
+	var walkTimeInterval = 350;
+	
+    function startWalking() {
+       walkTiming=window.setInterval(dogWalk,walkTimeInterval);
+    }
+    
+    function dogWalk() {
+     	oldFrameName = frameName;
+     
+     	// Finds new direction
+        if(direction == 0 && position >= 760) {
+        	direction=1;
+         	change=true;
+        } else if(direction==1 && position <= 100) {
+        	direction=0;
+         	change=true;
+        }
+     
+     	// Finds new frame number
+     	if(frame < 3) {
+        	frame++;
+        } else if(frame == 3) {
+        	frame = 1;
+        }
+     
+     	// Get name of current frame
+        if(direction == 0) {
+        	frameName = "dogRight" + frame;
+		} else if(direction == 1) {
+        	frameName = "dogLeft" + frame;
+        }
+     
+     	// Get new position for dog
+        if(direction == 0 && change == false) {
+        	position += step;
+		} else if(direction == 1 && change == false) {
+            position -= step;
+        } else if(direction == 0 && change == true) {
+        	position = 100;
+        } else if(direction == 1 && change == true) {
+        	position = 780;
+        }
+     
+ 		// show new frame, delete old frame
+        document.getElementById(oldFrameName).style.display="none";
+        document.getElementById(frameName).style.display="block";
+        document.getElementById(frameName).style.marginLeft=position+"px";
+     
+        //console.log(oldFrameName, frameName, position, change);
+
+     	change=false;
+    }
+    
+    // Bark button is clicked
+    // The letters BRK appears in front of the dog.
+    // Letters travel upwards and then disappears
+    var barkFunc;
+    function barkButtonClicked() {
+     	var barkObj =  document.getElementById('bark');
+			 
+		document.getElementById('barkButton').disabled = true;
+	 
+        // Find the position of the BRK.
+        if(direction== 0) {
+        	barkPosition = position + 65;
+        } else {
+        	barkPosition = position - 25;
+        }
+        barkObj.style.marginLeft=barkPosition+"px";
+        barkObj.style.display="block";
+    	
+        $('#bark').animate({
+        	top: '-=100',
+        	opacity: '-=1'
+        	}, 500);
+     
+        setTimeout(resetBark, 550);
+    }
+    
+    function resetBark() {
+        $('#bark').css({
+			'top' : '245px',
+            'opacity' : '1',
+			'display' : 'none'
+        });
+		
+		document.getElementById('barkButton').disabled = false;
+    }
+    
+	// Dog stops walking. bone appears in front of dog
+	// Pieces of bone disappear with each bite
+	function eatButtonClicked() {
+		document.getElementById('eatButton').disabled = true;
+	
+		window.clearInterval(walkTiming);
+		
+		var bonePosition = position;
+		if(direction == 0) {
+			bonePosition += 55;
+		} else {
+			bonePosition -= 15;
+		}
+		
+		$("#bone").css({'display' : 'block', 'margin-left' : bonePosition + 'px'});
+		
+		if(direction == 0) {
+			window.setTimeout(function() {
+				$("#b0").css('display', 'none');
+			}, 500);
+			
+			window.setTimeout(function() {
+				$("#b1").css('display', 'none');
+			}, 1000);
+			
+			window.setTimeout(function() {
+				$("#b2").css('display', 'none');
+			}, 1500);
+			
+			window.setTimeout(function() {
+				$("#b3").css('display', 'none');
+			}, 2000);
+		} else {
+			window.setTimeout(function() {
+				$("#b3").css('display', 'none');
+			}, 500);
+			
+			window.setTimeout(function() {
+				$("#b2").css('display', 'none');
+			}, 1000);
+			
+			window.setTimeout(function() {
+				$("#b1").css('display', 'none');
+			}, 1500);
+			
+			window.setTimeout(function() {
+				$("#b0").css('display', 'none');
+			}, 2000);
+		}
+		
+		window.setTimeout(function() {
+			this.barkButtonClicked();
+			walkTiming=window.setInterval(dogWalk,walkTimeInterval);
+			$("#bone").css('display', 'none');
+			$("#b0,#b1,#b2,#b3").css('display', 'inline');
+			document.getElementById('eatButton').disabled = false;
+		}, 2500);
+	}
+	
+	//dog stops and sits for some time. 
+	//poop appears behind dog
+	//message appears that says clean up after your dog
+	//poop disappears after you click it
+	function poopButtonClicked() {
+		document.getElementById('poopButton').disabled = true;
+	
+		window.clearInterval(walkTiming);
+		
+		var RL = '#dogSit';
+		if(direction == 0) { RL += "Right"; }
+		else { RL += "Left"; }
+		
+		$("#" + frameName).css('display', 'none');
+		$(RL).css({'margin-left' : position + 'px', 'display' : 'block'});
+		
+		document.getElementById('instructions').innerHTML = "Clean up after your dog!";
+		setTimeout(poop, 1000);
+	}
+	
+	function poop() {
+		var RL = '#dogSit';
+		if(direction == 0) { RL += "Right"; }
+		else { RL += "Left"; }
+	
+		$("#poo").css({'margin-left' : position + 'px', 'display' : 'block'});
+		$(RL).css('display', 'none');
+		walkTiming = window.setInterval(dogWalk,walkTimeInterval);
+	}
+	
+	// Click the poo to make it disappear
+	function pooClicked() {
+		$("#poo").css('display', 'none');
+		document.getElementById('poopButton').disabled = false;
+		document.getElementById('instructions').innerHTML = "Thank you!";
+				
+		setTimeout(function() {
+		    $('#instructions').animate({
+				opacity: '-=1'
+        	}, 500);
+		}, 500);
+		
+		setTimeout(function() {
+			document.getElementById('instructions').innerHTML = "";
+			$("#instructions").css('opacity', '1');
+		}, 1200);
+	}
+	
+	// Ball appears in front of dog. he'll hold it. 
+	var ballTiming;
+	var ballPosition;
+	function playButtonClicked() {
+		document.getElementById('playButton').disabled = true;
+		document.getElementById('instructions').innerHTML = "Get the ball back!";
+		
+		$('#ball').css({'margin-left' : position, 'display' : 'block'});
+		ballTiming = window.setInterval(ballWalk,100);
+	}
+	
+	// Animate the ball with dog
+	function ballWalk() {
+		if(direction == 0) {
+			ballPosition = position + 60;
+		} else {
+			ballPosition = position - 15;
+		}
+		
+		$('#ball').css('margin-left', ballPosition);
+	}
+	
+	// Click the ball from the dog's mouth
+	function ballClicked() {
+		document.getElementById('instructions').innerHTML = "Got it!";
+		window.clearInterval(ballTiming);
+		
+		setTimeout(function() {
+			$('#instructions').animate({
+        	opacity: '-=1'
+        	}, 500);
+		}, 500);
+		
+		setTimeout(function() {
+			$('#instructions').css({
+				opacity: '1'
+        	}, 100);
+			
+			document.getElementById('instructions').innerHTML = "";
+		}, 1500);
+		
+		$("#ball").css('display', 'none');
+		document.getElementById('playButton').disabled = false;
+	}
+	
+    startWalking();
+   </script>
+</head>
+<body>
+    <!-- <img src="../Art/background2.gif" alt="" id="bg" height=600px; /> -->
+	<div id="instructions">
+	</div>
+	
+	<div class="dog" id="dogRight3">
+<pre>     __
+(___()'`;
+/,    /`
+\\"--\\</pre></div>
+       <div class="dog" id="dogRight1">
+<pre>      __
+ (___()'`;
+ /,    /`
+//"--"\\</pre></div>
+       <div class="dog" id="dogRight2">
+<pre>     __
+(___()'`;
+/,    /`
+\\--//</pre></div>
+       <div class="dog" id="dogLeft3">
+<pre>  __
+;`'()___)
+ `\    ,\
+  //--"//</pre></div>
+    <div class="dog" id="dogLeft1">
+<pre>  __
+;`'()___)
+ `\    ,\
+  //"--"\\</pre></div>
+    <div class="dog" id="dogLeft2">
+<pre>  __
+;`'()___)
+ `\    ,\
+   \\--//</pre></div>
+    <div class="dog" id="dogSitRight">
+<pre>    __
+   ()'`;
+   /\|`
+  /  |
+(/_)_|_</pre>
+	</div>
+    <div class="dog" id="dogSitLeft">
+<pre>  __
+;`'()
+ `|/\
+  |  \
+ _|_(_\)</pre>
+	</div>
+ <div class="bg" id="park">
+ <pre>      ,.,., 
+     /###/#\
+  ,, |' '|:|        ,                                                                        ,                    ,     ,
+""""""""""""'""""""'''""""""""""""""""""""""""""''"'""""""""""""""""""""""""""""""""""""''""""""""""""""'''"""""""""""""""</pre>
+    </div>
+ 
+    <div class="objects" id="bone">
+        <pre><span id="b0">8</span><span id="b1">=</span><span id="b2">=</span><span id="b3">8</span></pre>
+    </div>
+ 
+    <div class="objects" id="bowl">
+ <pre> ___
+/DOG\</pre></div>
+	<div class="objects" id="ball" onclick="ballClicked()">
+    <pre> _
+(_)</pre>
+    </div>
+ 	<div id="poo" class="objects" onclick="pooClicked()">
+    <pre> (\
+(POO)</pre>
+	</div>
+ 	<div class="objects" id="bark">
+    <pre>BRK</pre>
+    </div>
+    <div id="buttons">
+       <button type="button" class="butt" id="eatButton" onclick="eatButtonClicked()">Eat</button>
+       <button type="button" class="butt" id="playButton" onclick="playButtonClicked()">Play</button>
+       <button type="button" class="butt" id="poopButton" onclick="poopButtonClicked()">Poop</button>
+       <button type="button" class="butt" id="barkButton" onclick="barkButtonClicked()">Bark</button>
+    </div>
+</body>
+</html>
